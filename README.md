@@ -6,7 +6,7 @@ A bot for TINAJA Ingeniería Discord server.
 ```sh
 bundle install
 ```
-Create a new `.env` file using `.env.sample` as a template to set the required credentials.
+Create a new `.env` file using `.env.sample` as a template to set the relevant params/credentials.
 
 ## Run the bot
 ```sh
@@ -14,17 +14,8 @@ rake run
 ```
 
 ## Docker
-You can build a docker image of the project by running:
-
+Using docker compose you can start the bot by simply running:
 ```
-docker build . -t tinaja-bot:latest
+docker compose up
 ```
-
-Then run it like this:
-
-```
-docker run \
---env TOKEN=<YOUR TOKEN> \
---env CLIENT_ID=<YOUR CLIENT ID> \
-tinaja-bot
-```
+Check both `Dockerfile` and `docker-compose.yml` for details.
