@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  BROWSER_HOSTNAME: localhost
+  BROWSER_PORT: "3000"

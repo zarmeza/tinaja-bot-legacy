@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tinaja-bot
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tinaja-bot
+    spec:
+      containers:
+      - name: bot
+        image: ghcr.io/elshaka/tinaja-bot:latest
+        envFrom:
+        - configMapRef:
+            name: config
+        - secretRef:
+            name: secret
+      - name: browser
+        image: browserless/chrome
+        ports:
+        - containerPort: 3000
+  selector:
+    matchLabels:
+      app: tinaja-bot
