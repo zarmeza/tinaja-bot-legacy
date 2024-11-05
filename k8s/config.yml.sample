@@ -4,4 +4,4 @@ metadata:
   name: config
 data:
   BROWSER_HOSTNAME: localhost
-  BROWSER_PORT: "3000"
+  BROWSER_PORT: "3000" # Must be explicity set as a string because of reasons

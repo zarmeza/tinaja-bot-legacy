@@ -16,3 +16,4 @@ backtrace.txt
 screenshot.png
 kubeconfig
 k8s/secrets.yml
+k8s/config.yml
