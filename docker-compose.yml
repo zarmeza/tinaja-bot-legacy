@@ -3,6 +3,6 @@ services:
     build: .
     env_file: ".env"
   browser:
-    image: "browserless/chrome"
+    image: "lscr.io/linuxserver/chromium:latest"
     ports:
       - 3000:3000
