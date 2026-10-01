@@ -19,9 +19,9 @@ Gem::Specification.new do |s|
                 'Gemfile', 'Rakefile']
   s.extra_rdoc_files = ['README.md']
 
-  s.required_ruby_version = '~> 3.3'
-  s.add_dependency 'discordrb', '~> 3.5'
-  s.add_dependency 'httparty', '~> 0.22.0'
+  s.required_ruby_version = '>= 4.0'
+  s.add_dependency 'discordrb', '~> 3.8'
+  s.add_dependency 'httparty', '~> 0.24'
   s.add_dependency 'watir', '~> 7.3'
   s.metadata['rubygems_mfa_required'] = 'true'
 end

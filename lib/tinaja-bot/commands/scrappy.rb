@@ -10,23 +10,29 @@ module TinajaBot
 
       def self.handler
         lambda do |event, *args|
-          browser = Watir::Browser.new(:chrome, options: { args: BROWSER_ARGS }, url: BROWSER_URL)
-          begin
-            url = args&.join(' ')
-            if url
-              browser.goto url
-              browser.screenshot.save 'screenshot.png'
-              event.send_file File.open('screenshot.png', 'r')
-            else
-              event.respond "<@#{event.user.id}> gib url plz"
-            end
-          rescue Selenium::WebDriver::Error::UnknownError => e
-            File.write('backtrace.txt', e.backtrace.join("\n"))
-            event.respond "`#{e.detailed_message}`"
-            event.send_file File.open('backtrace.txt', 'r')
+          url = args&.join(' ')
+          if url && !url.empty?
+            capture_and_send(event, url)
+          else
+            event.respond "<@#{event.user.id}> gib url plz"
           end
           nil
         end
+      end
+
+      def self.capture_and_send(event, url)
+        browser = Watir::Browser.new(:chrome, options: { args: BROWSER_ARGS }, url: BROWSER_URL)
+        browser.goto url
+        browser.screenshot.save 'screenshot.png'
+        event.send_file File.open('screenshot.png', 'r')
+      rescue Selenium::WebDriver::Error::UnknownError => e
+        handle_error(event, e)
+      end
+
+      def self.handle_error(event, error)
+        File.write('backtrace.txt', error.backtrace.join("\n"))
+        event.respond "`#{error.detailed_message}`"
+        event.send_file File.open('backtrace.txt', 'r')
       end
     end
   end
