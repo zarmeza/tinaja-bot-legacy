@@ -1,4 +1,4 @@
-FROM ruby:3.3.5-alpine
+FROM ruby:4.0.7-alpine
 
 # Build dependencies
 ARG BUILD_DEPS="build-base libsodium-dev"
