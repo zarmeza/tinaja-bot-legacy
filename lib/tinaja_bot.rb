@@ -21,9 +21,15 @@ module TinajaBot
         require_relative file
 
         command = File.basename(file, '.rb').to_sym
-        handler = TinajaBot::Commands.const_get(command.capitalize).handler
+        handler = TinajaBot::Commands.const_get(module_name(command)).handler
         @bot.command command, &handler
       end
+    end
+
+    # Command filenames are snake_case (two_words.rb) while their handlers live
+    # in CamelCase modules (TinajaBot::Commands::TwoWords).
+    def module_name(command)
+      command.to_s.split('_').map(&:capitalize).join
     end
   end
 end

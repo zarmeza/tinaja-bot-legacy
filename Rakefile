@@ -2,8 +2,12 @@
 
 require 'rake'
 require 'rubocop/rake_task'
+require 'rspec/core/rake_task'
 
 RuboCop::RakeTask.new
+RSpec::Core::RakeTask.new(:spec)
+
+task default: %i[spec rubocop]
 
 task :run do
   require 'dotenv'

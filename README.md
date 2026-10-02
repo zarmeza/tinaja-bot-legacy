@@ -13,6 +13,12 @@ Create a new `.env` file using `.env.sample` as a template to set the relevant p
 rake run
 ```
 
+## Tests
+```sh
+rake spec     # RSpec suite
+rake          # specs + RuboCop
+```
+
 ## Docker
 Using docker compose you can start the bot by simply running:
 ```

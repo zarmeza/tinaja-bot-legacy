@@ -11,6 +11,7 @@ pkg/*
 .env
 spec/dummy/tmp/*
 spec/dummy/log/*.log
+spec/examples.txt
 .env
 backtrace.txt
 screenshot.png
