@@ -29,9 +29,11 @@ Welcome to the **TinajaBot** codebase. This document outlines project architectu
 │           └── unexpo.rb        # !unexpo (community greeting)
 ├── k8s/                         # Kubernetes deployment manifests and samples
 ├── spec/                        # RSpec suite (mirrors lib/ under spec/tinaja_bot/)
-│   ├── spec_helper.rb           # Loads TinajaBot and configures RSpec
+│   ├── spec_helper.rb           # Loads TinajaBot + support doubles, RSpec config
+│   ├── support/fake_event.rb    # Stand-in for a discordrb message event
 │   └── tinaja_bot/
 │       ├── bot_spec.rb          # Command loading / registration
+│       ├── commands/            # One spec per command module
 │       └── fixtures/            # Command modules used only by specs
 ├── Dockerfile                   # Multi-arch Alpine Docker image (ruby:4.0.7-alpine)
 ├── docker-compose.yml           # Local dev compose setup (bot + headless chromium)
@@ -52,6 +54,7 @@ When creating new commands:
 - Structure the module as `TinajaBot::Commands::<Name>`.
 - Implement `def self.handler` returning a callable `lambda`.
 - **Naming:** the filename must be the snake_case form of the module. `!two_words` ➔ `two_words.rb` ➔ `TinajaBot::Commands::TwoWords`. A mismatch raises `NameError` at boot.
+- Add a spec at `spec/tinaja_bot/commands/<name>_spec.rb` (see Testing below).
 
 ---
 
@@ -91,7 +94,10 @@ When creating new commands:
 
 Spec conventions:
 - `spec/spec_helper.rb` is auto-required via `.rspec`; don't require it again.
-- Spec paths mirror `lib/`: `lib/tinaja_bot.rb` ➔ `spec/tinaja_bot/bot_spec.rb`. `RSpec/SpecFilePathFormat` enforces this.
+- Spec paths mirror `lib/`: `lib/tinaja-bot/commands/exercism.rb` ➔ `spec/tinaja_bot/commands/exercism_spec.rb`. `RSpec/SpecFilePathFormat` enforces this.
+- Handlers are exercised by calling `.handler` with a `FakeEvent` (`spec/support/fake_event.rb`), which records `responses` and `files`. No gateway connection is needed.
+- Use `instance_double` for collaborators (`Watir::Browser`, `HTTParty::Response`, `Discordrb::Commands::CommandBot`) — `verify_partial_doubles` is on.
+- Anything writing to disk (e.g. `scrappy`'s `screenshot.png`) should run inside a `Dir.mktmpdir` + `Dir.chdir`.
 
 ### Docker & Infrastructure
 - **Build Docker image**:
