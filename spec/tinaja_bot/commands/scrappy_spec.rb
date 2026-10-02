@@ -17,6 +17,9 @@ RSpec.describe TinajaBot::Commands::Scrappy do
   end
 
   before do
+    # Most examples are about what happens once Chrome is up; the race is
+    # covered by overriding this in the contexts below.
+    allow(described_class).to receive(:browser_ready?).and_return(true)
     allow(Watir::Browser).to receive(:new).and_return(browser)
     allow(browser).to receive(:goto)
     allow(browser).to receive(:screenshot).and_return(screenshot)
@@ -54,6 +57,38 @@ RSpec.describe TinajaBot::Commands::Scrappy do
       described_class.handler.call(event, 'https://example.com', 'a', 'b')
 
       expect(browser).to have_received(:goto).with('https://example.com a b')
+    end
+  end
+
+  context 'when the WebDriver is not accepting connections yet' do
+    before do
+      allow(described_class).to receive(:browser_ready?).and_return(false)
+      stub_const('TinajaBot::Commands::Scrappy::BROWSER_READY_TIMEOUT', 0)
+      stub_const('TinajaBot::Commands::Scrappy::BROWSER_POLL_INTERVAL', 0)
+    end
+
+    it 'says the browser is booting instead of raising' do
+      described_class.handler.call(event, 'https://example.com')
+
+      aggregate_failures do
+        expect(event.responses.first).to eq('<@3> chrome is still booting, give it a sec and try again')
+        expect(Watir::Browser).not_to have_received(:new)
+        expect(event.files).to be_empty
+      end
+    end
+  end
+
+  context 'when the browser only becomes reachable after waiting' do
+    before do
+      allow(described_class).to receive(:browser_ready?).and_return(false, true)
+      stub_const('TinajaBot::Commands::Scrappy::BROWSER_READY_TIMEOUT', 30)
+      stub_const('TinajaBot::Commands::Scrappy::BROWSER_POLL_INTERVAL', 0)
+    end
+
+    it 'captures the screenshot once the port opens' do
+      described_class.handler.call(event, 'https://example.com')
+
+      expect(browser).to have_received(:goto).with('https://example.com')
     end
   end
 
