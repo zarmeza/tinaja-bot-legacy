@@ -116,7 +116,7 @@ Spec conventions:
 
 - **Branching Model**: GitHub Flow (Trunk-Based Development).
   - Main trunk: `main`.
-  - Feature / topic branches: `feat/<name>`, `fix/<name>`, `chore/<name>`, `docs/<name>`.
+  - Feature / topic branches: `feat/<name>`, `fix/<name>`, `chore/<name>`, `docs/<name>`, `ci/<name>`.
 - **Commit Messages**: Follow Conventional Commits format:
   - `feat: add new discord command`
   - `fix: handle invalid URL in scrappy`
@@ -124,4 +124,8 @@ Spec conventions:
   - `docs: update agent guidelines`
 - **Pull Requests**:
   - Open PRs against `main`: `gh pr create --web` or `gh pr create --fill`.
-  - Pushes to `main` automatically trigger `.github/workflows/build-and-push.yml`.
+- **Continuous Integration**:
+  - `.github/workflows/ci.yml` runs `rake spec` and `rake rubocop` on every pull request and on pushes to `main`, pinned to Ruby `4.0.7` to match the `Gemfile`.
+  - It uses `bundler-cache: true`, which reads `Gemfile.lock`. That lockfile is tracked on purpose — do not re-add it to `.gitignore`, or CI will resolve dependencies fresh on every run.
+  - `.github/workflows/build-and-push.yml` builds and publishes the image to ghcr.io, and also triggers on pushes to `main`.
+  - Local `bundle exec rake` is the same check; run it before pushing rather than waiting for CI.
