@@ -2,25 +2,56 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tinaja-bot
+  labels:
+    app.kubernetes.io/name: tinaja-bot
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tinaja-bot
   template:
     metadata:
       labels:
-        app: tinaja-bot
+        app.kubernetes.io/name: tinaja-bot
     spec:
       containers:
       - name: bot
-        image: ghcr.io/elshaka/tinaja-bot:latest
+        image: ghcr.io/zarmeza/tinaja-bot:latest
+        imagePullPolicy: Always
         envFrom:
         - configMapRef:
             name: config
         - secretRef:
             name: secret
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
       - name: browser
-        image: browserless/chrome
+        image: browserless/chrome:latest
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3000
-  selector:
-    matchLabels:
-      app: tinaja-bot
+        - name: http-webdriver
+          containerPort: 3000
+        readinessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
