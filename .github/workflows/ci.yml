@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: RSpec and RuboCop
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1.327.0
+        with:
+          # Must match the `ruby` directive in the Gemfile, otherwise bundler
+          # refuses to resolve.
+          ruby-version: '4.0.7'
+          # Installs from Gemfile.lock and caches the bundle, so this requires
+          # the lockfile to be tracked in git.
+          bundler-cache: true
+
+      # Run as separate steps rather than `bundle exec rake`, so a failure is
+      # attributable. The default rake task runs both.
+      - name: RSpec
+        run: bundle exec rake spec
+
+      - name: RuboCop
+        run: bundle exec rake rubocop
