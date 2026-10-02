@@ -28,24 +28,30 @@ Welcome to the **TinajaBot** codebase. This document outlines project architectu
 │           ├── scrappy.rb       # !scrappy <url> (web screenshots via Watir/Selenium)
 │           └── unexpo.rb        # !unexpo (community greeting)
 ├── k8s/                         # Kubernetes deployment manifests and samples
+├── spec/                        # RSpec suite (mirrors lib/ under spec/tinaja_bot/)
+│   ├── spec_helper.rb           # Loads TinajaBot and configures RSpec
+│   └── tinaja_bot/
+│       ├── bot_spec.rb          # Command loading / registration
+│       └── fixtures/            # Command modules used only by specs
 ├── Dockerfile                   # Multi-arch Alpine Docker image (ruby:4.0.7-alpine)
 ├── docker-compose.yml           # Local dev compose setup (bot + headless chromium)
 ├── Gemfile                      # Bundler dependencies
 ├── tinaja-bot.gemspec           # Gem specification and runtime requirements
-└── Rakefile                     # Rake tasks (:run, :rubocop)
+└── Rakefile                     # Rake tasks (:run, :spec, :rubocop, default)
 ```
 
 ### Dynamic Command Loading
 Commands in `lib/tinaja-bot/commands/*.rb` are autoloaded dynamically in `TinajaBot::Bot#load_commands`:
 1. Scans `lib/tinaja-bot/commands/*.rb`.
 2. Infers the command symbol from the filename (e.g. `scrappy.rb` ➔ `:scrappy`).
-3. Capitalizes the symbol to find the module under `TinajaBot::Commands` (e.g. `TinajaBot::Commands::Scrappy`).
-4. Invokes `.handler`, which must return a `lambda` taking `|event, *args|`.
+3. Derives the module name via `Bot#module_name`, which snake_case ➔ CamelCase (`two_words.rb` ➔ `TwoWords`).
+4. Looks that constant up under `TinajaBot::Commands` and calls `.handler`, which must return a `lambda` taking `|event, *args|`.
 
 When creating new commands:
 - Create `lib/tinaja-bot/commands/<name>.rb`.
 - Structure the module as `TinajaBot::Commands::<Name>`.
 - Implement `def self.handler` returning a callable `lambda`.
+- **Naming:** the filename must be the snake_case form of the module. `!two_words` ➔ `two_words.rb` ➔ `TinajaBot::Commands::TwoWords`. A mismatch raises `NameError` at boot.
 
 ---
 
@@ -73,7 +79,19 @@ When creating new commands:
   ```sh
   bundle exec rake rubocop
   ```
-  *Always verify that `bundle exec rake rubocop` passes with 0 offenses before committing.*
+- **RSpec**:
+  ```sh
+  bundle exec rake spec
+  ```
+- **Both** (default task):
+  ```sh
+  bundle exec rake
+  ```
+  *Always verify `bundle exec rake` passes before committing: specs green and 0 RuboCop offenses.*
+
+Spec conventions:
+- `spec/spec_helper.rb` is auto-required via `.rspec`; don't require it again.
+- Spec paths mirror `lib/`: `lib/tinaja_bot.rb` ➔ `spec/tinaja_bot/bot_spec.rb`. `RSpec/SpecFilePathFormat` enforces this.
 
 ### Docker & Infrastructure
 - **Build Docker image**:
