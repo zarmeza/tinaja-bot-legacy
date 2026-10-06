@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description           = 'A bot for TINAJA Ingeniería Discord server'
   s.authors               = ['Eleazar Meza']
   s.email                 = 'meza.eleazar@gmail.com'
-  s.homepage              = 'https://github.com/elshaka/tinaja-bot'
+  s.homepage              = 'https://github.com/zarmeza/tinaja-bot'
   s.license               = 'MIT'
   s.files = Dir['README.md', 'LICENSE',
                 'CHANGELOG.md', 'lib/**/*.rb',
