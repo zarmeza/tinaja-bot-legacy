@@ -36,7 +36,7 @@ module DiscordReply
     channel ||= ask_channel(token)
     channel = ask_message(token, channel) while channel
   rescue Interrupt
-    puts
+    output.puts
   end
 
   def self.ask_channel(token)
@@ -51,10 +51,10 @@ module DiscordReply
 
   def self.try_channel(token, id)
     channel = api(:get, "/channels/#{id}", token)
-    puts "  ##{channel['name']}"
+    output.puts "  ##{channel['name']}"
     channel
   rescue ApiError => e
-    puts "  #{e.message}"
+    output.puts "  #{e.message}"
     nil
   end
 
@@ -68,12 +68,12 @@ module DiscordReply
     send_text(token, channel, id.empty? ? nil : id)
     channel
   rescue ApiError => e
-    puts "  #{e.message}"
+    output.puts "  #{e.message}"
     channel
   end
 
   def self.reject(id, channel)
-    puts "  #{id} is not a message id"
+    output.puts "  #{id} is not a message id"
     channel
   end
 
@@ -86,7 +86,7 @@ module DiscordReply
     return if text.nil? || text.empty?
 
     message = post(token, channel, text, reply_to)
-    puts "  -> #{link(message)}"
+    output.puts "  -> #{link(message)}"
   end
 
   def self.post(token, channel, text, reply_to)
@@ -124,12 +124,28 @@ module DiscordReply
   end
 
   def self.prompt(text)
-    print text
-    $stdin.gets&.strip
+    output.print text
+    input.gets&.strip
+  end
+
+  # The specs swap these for StringIO; by default they are the terminal.
+  def self.input
+    @input ||= $stdin
+  end
+
+  def self.output
+    @output ||= $stdout
+  end
+
+  class << self
+    attr_writer :input, :output
   end
 end
 
-token = ENV['DISCORD_BOT_TOKEN'].to_s.strip
-abort 'DISCORD_BOT_TOKEN is not set (environment or .env)' if token.empty?
+# Only when run as a program: loading this file for specs must not abort.
+if $PROGRAM_NAME == __FILE__
+  token = ENV['DISCORD_BOT_TOKEN'].to_s.strip
+  abort 'DISCORD_BOT_TOKEN is not set (environment or .env)' if token.empty?
 
-DiscordReply.call(token, ARGV.first)
+  DiscordReply.call(token, ARGV.first)
+end
