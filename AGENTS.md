@@ -68,13 +68,13 @@ When creating new commands:
   ```
 
 ### Running the Bot
-- **Local development (loads `.env` via `dotenv`)**:
+- **Local development (loads `.env` via `dotenv`; `DISCORD_BOT_TOKEN` and `DISCORD_CLIENT_ID` come from it)**:
   ```sh
   bundle exec rake run
   ```
 - **Direct CLI runner**:
   ```sh
-  bundle exec bin/tinaja-bot <DISCORD_TOKEN> <CLIENT_ID>
+  bundle exec bin/tinaja-bot <DISCORD_BOT_TOKEN> <DISCORD_CLIENT_ID>
   ```
 
 ### Linting & Quality
